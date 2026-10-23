@@ -1,37 +1,31 @@
-# 📡 Network Packet Inspector & Traffic Analyzer
+# Offline PCAP Flow Analyzer
 
-[![Security Audit](https://img.shields.io/badge/Security-Educational%20Tool-emerald?style=for-the-badge)](https://github.com/sparkx313/cybersecurity-packet-sniffer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-gold?style=for-the-badge)](LICENSE)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+Analyze a classic Ethernet `.pcap` file you already have and export directed IP-flow metadata to CSV. The parser supports IPv4, IPv6, VLAN-tagged Ethernet, TCP, UDP, and other IP protocol numbers. The summary includes protocol counts, capture duration, top talkers, and TCP SYN/FIN/RST counts.
 
-## 📌 Description
-Python network packet sniffing tool for decoding IP headers, TCP/UDP transport layers, and inspecting payload signatures.
+The tool only reads the capture file you select. It does not open raw sockets, capture live traffic, or save packet payloads.
 
----
+## Requirements
 
-## 🚀 Key Features
-- **Pure Python Implementation**: Lightweight, modular codebase with standard library efficiency.
-- **Security-First Architecture**: Built for educational ethical security assessments, red team exercises, and blue team defense auditing.
-- **Clear CLI Outputs**: Structured logging, status scores, and security alert formatting.
+- Python 3.10 or newer
+- A classic Ethernet-link-layer `.pcap` file
 
----
+The analyzer uses the Python standard library; no third-party packages are needed. If your capture is pcapng, export it as classic PCAP from Wireshark first.
 
-## 📦 Usage Instructions
+## Use
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/sparkx313/cybersecurity-packet-sniffer.git
-   cd cybersecurity-packet-sniffer
-   ```
+Capture traffic through your approved network-monitoring process and save it as `capture.pcap`. Then run:
 
-2. **Run the security tool**:
-   ```bash
-   python sniffer.py
-   ```
+```bash
+python sniffer.py capture.pcap --flows-out reports/flows.csv
+```
 
----
+The command prints a JSON summary and writes one row per directed flow with endpoint addresses, ports when available, packet count, original on-wire byte count, first/last timestamps, and TCP control-flag counts. The CSV contains metadata only; application payloads are not decoded or exported.
 
-## ⚠️ Educational Disclaimer
-This repository is created strictly for educational purposes, security auditing, and defensive research. Do not execute against target systems without explicit authorization.
+## Supported capture details
 
-Developed with ❤️ by **sparkx313**.
+- Supports classic PCAP with little/big endian microsecond or nanosecond timestamps and Ethernet link type.
+- Parses stacked 802.1Q/802.1ad VLAN tags, IPv4, IPv6 extension headers, TCP/UDP ports, and TCP SYN/FIN/RST flags.
+- Counts non-IP frames separately. Truncated record data and invalid PCAP headers are reported as errors.
+- Does not support pcapng, non-Ethernet capture link types, live capture, DNS/TLS application decoding, packet reassembly, or payload signatures.
+
+Only analyze captures you are authorized to handle. PCAP files can contain sensitive addresses and traffic metadata; keep the input and generated CSV in an appropriate location.
